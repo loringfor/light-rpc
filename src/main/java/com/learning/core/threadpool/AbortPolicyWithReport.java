@@ -1,4 +1,4 @@
-package com.learning.core;
+package com.learning.core.threadpool;
 
 import java.util.concurrent.ThreadPoolExecutor;
 

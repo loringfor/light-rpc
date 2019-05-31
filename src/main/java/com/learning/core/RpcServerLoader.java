@@ -2,10 +2,10 @@ package com.learning.core;
 
 import com.learning.core.send.MessageSendHandler;
 import com.learning.core.send.MessageSendInitializeTask;
+import com.learning.core.threadpool.RpcThreadPool;
 import com.learning.serialize.RpcSerializeProtocol;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.Condition;
@@ -55,6 +55,7 @@ public class RpcServerLoader {
             String host = ipAddr[0];
             int port = Integer.parseInt(ipAddr[1]);
             InetSocketAddress remoteAddr = new InetSocketAddress(host,port);
+            // 建立发送的线程并提交到线程池
             threadPoolExecutor.submit(new MessageSendInitializeTask(eventLoopGroup, remoteAddr, this, protocol));
         }
     }

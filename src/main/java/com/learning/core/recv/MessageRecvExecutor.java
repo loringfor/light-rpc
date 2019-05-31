@@ -1,8 +1,9 @@
 package com.learning.core.recv;
 
-import com.learning.core.NameThreadFactory;
-import com.learning.core.RpcThreadPool;
+import com.learning.core.threadpool.NameThreadFactory;
+import com.learning.core.threadpool.RpcThreadPool;
 import com.learning.model.MessageKeyVal;
+import com.learning.registry.ServiceRegistry;
 import com.learning.serialize.RpcSerializeProtocol;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -10,8 +11,9 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -23,9 +25,12 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class MessageRecvExecutor implements ApplicationContextAware, InitializingBean {
+    private static final Logger logger = LoggerFactory.getLogger(MessageRecvExecutor.class);
+
     private final String DELIMITER = ":";
 
     private String serverAddress;
+    private ServiceRegistry serviceRegistry;
     //默认JKD本地序列化协议
     private RpcSerializeProtocol serializeProtocol = RpcSerializeProtocol.JDKSERIALIZE;
     private Map<String, Object> concurrentHashMap = new ConcurrentHashMap<String, Object>();
@@ -49,13 +54,24 @@ public class MessageRecvExecutor implements ApplicationContextAware, Initializin
         this.serverAddress = serverAddress;
         this.serializeProtocol = serializeProtocol;
     }
+    public MessageRecvExecutor(String serverAddress, ServiceRegistry serviceRegistry, RpcSerializeProtocol serializeProtocol) {
+        this.serverAddress = serverAddress;
+        this.serviceRegistry = serviceRegistry;
+        this.serializeProtocol = serializeProtocol;
+    }
 
     public String getServerAddress() {
         return serverAddress;
     }
-
     public void setServerAddress(String serverAddress) {
         this.serverAddress = serverAddress;
+    }
+
+    public ServiceRegistry getServiceRegistry() {
+        return serviceRegistry;
+    }
+    public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
     }
 
     public static void submit(Runnable task){
@@ -92,7 +108,7 @@ public class MessageRecvExecutor implements ApplicationContextAware, Initializin
 
         //方法返回到Java虚拟机的可用的处理器数量
         int parallel = Runtime.getRuntime().availableProcessors() * 2;
-        System.out.println("可用处理器的数目为："+ parallel);
+        logger.info("可用处理器的数目为：{}",parallel);
 
         EventLoopGroup boss = new NioEventLoopGroup();
         EventLoopGroup worker = new NioEventLoopGroup(parallel, threadRpcFactory, SelectorProvider.provider());
@@ -111,10 +127,15 @@ public class MessageRecvExecutor implements ApplicationContextAware, Initializin
                 String host = ipAddr[0];
                 int port = Integer.parseInt(ipAddr[1]);
                 ChannelFuture future = bootstrap.bind(host,port).sync();
-                System.out.printf("[author loring] Netty RPC Server start success ip:%s port:%d\n", host, port);
+                logger.info("[author Loring] Netty RPC Server start success in ip:{},port:{} ", host, port);
+
+                if (serviceRegistry != null) {
+                    serviceRegistry.register(serverAddress); // 注册服务地址
+                }
+
                 future.channel().closeFuture().sync();
             }else {
-                System.out.printf("[author loring] Netty RPC Server start fail!\n");
+                logger.error("[author loring] Netty RPC Server start fail!");
             }
         }finally {
             boss.shutdownGracefully();

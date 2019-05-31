@@ -3,14 +3,18 @@ package com.learning.core.send;
 import com.learning.core.MessageCallBack;
 import com.learning.core.RpcServerLoader;
 import com.learning.model.MessageRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
 
 public class MessageSendJDKProxy<T> implements InvocationHandler {
+    private static final Logger logger = LoggerFactory.getLogger(MessageSendJDKProxy.class);
 
-    public <T> T bindProxy(Class<T> rpcInterface){
+    public <T> T getProxy(Class<T> rpcInterface){
         return (T) Proxy.newProxyInstance(
                 rpcInterface.getClassLoader(), new Class<?>[]{rpcInterface}, this);
     }
@@ -26,7 +30,7 @@ public class MessageSendJDKProxy<T> implements InvocationHandler {
 
         MessageSendHandler messageSendHandler = RpcServerLoader.getInstance().getMessageSendHandler();
         MessageCallBack callBack = messageSendHandler.sendRequest(request);
-        System.out.println("调用了："+ method.toString());
+        logger.info("调用了："+ method.toString());
         return callBack.start();
     }
 }

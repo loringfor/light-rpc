@@ -1,5 +1,5 @@
 # light-rpc Project
-基于Netty的RPC框架
+轻量级RPC，基于Netty的RPC框架
 
 此为自己动手，底层通信基于Netty来完成的简易版RPC项目，仅供自我学习使用
 
@@ -14,5 +14,6 @@
 
 * 将此项目clone到本地；
 * 通过maven将项目导入到本地IDE中；
+* 启动ZooKeeper来作为注册中心
 * 运行ServerStart类来启动服务端；
 * 然后启动RpcParallelTest类中的测试案例来进行RPC调用

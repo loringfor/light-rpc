@@ -23,8 +23,14 @@
 
     <bean id="calculate" class="com.learning.servicebean.CalculateImpl"/>
 
+    <!-- 配置服务注册组件 -->
+    <bean id="serviceRegistry" class="com.learning.registry.ServiceRegistry">
+        <constructor-arg name="registryAddress" value="${registry.address}"/>
+    </bean>
+
     <bean id="rpcServer" class="com.learning.core.recv.MessageRecvExecutor">
         <constructor-arg name="serverAddress" value="${rpc.server.addr}"/>
+        <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
         <constructor-arg name="serializeProtocol" value="PROTOSTUFFSERIALIZE"/>
     </bean>
 

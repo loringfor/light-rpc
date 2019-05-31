@@ -3,14 +3,17 @@ package com.learning.core.send;
 import com.learning.core.MessageCallBack;
 import com.learning.core.RpcServerLoader;
 import com.learning.model.MessageRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
-
 import java.lang.reflect.Method;
 import java.util.UUID;
 
 public class MessageSendCGlibProxy implements MethodInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(MessageSendCGlibProxy.class);
 
     /**
      * 生成 CGLIB 代理对象
@@ -47,7 +50,7 @@ public class MessageSendCGlibProxy implements MethodInterceptor {
 
         MessageSendHandler messageSendHandler = RpcServerLoader.getInstance().getMessageSendHandler();
         MessageCallBack callBack = messageSendHandler.sendRequest(request);
-        System.out.println("调用了："+ method.toString());
+        logger.info("调用了：{}", method.toString());
         return callBack.start();
     }
 }

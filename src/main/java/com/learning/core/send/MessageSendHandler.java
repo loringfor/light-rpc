@@ -5,11 +5,15 @@ import com.learning.model.MessageResponse;
 import com.learning.model.MessageRequest;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageSendHandler extends ChannelInboundHandlerAdapter {
-    private ConcurrentHashMap<String, MessageCallBack> mapCallBack = new ConcurrentHashMap<String, MessageCallBack>();
+    private static final Logger logger = LoggerFactory.getLogger(MessageSendHandler.class);
+    private ConcurrentHashMap<String, MessageCallBack> mapCallBack = new ConcurrentHashMap();
     private volatile Channel channel;
     private SocketAddress remoteAddr;
 
@@ -42,7 +46,7 @@ public class MessageSendHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        System.out.println("建立了连接："+ channel.remoteAddress().toString());
+        logger.info("建立了连接：{}", channel.remoteAddress().toString());
         this.remoteAddr=this.channel.remoteAddress();
     }
 

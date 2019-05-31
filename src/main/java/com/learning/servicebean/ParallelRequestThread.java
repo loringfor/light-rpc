@@ -6,12 +6,12 @@ import com.learning.core.send.MessageSendJDKProxy;
 import java.util.concurrent.CountDownLatch;
 
 public class ParallelRequestThread implements Runnable{
-    private MessageSendCGlibProxy sendProxy;
+    private MessageSendJDKProxy sendProxy;
     private CountDownLatch signal;
     private CountDownLatch finish;
     private int taskNumber;
 
-    public ParallelRequestThread(MessageSendCGlibProxy sendProxy, CountDownLatch signal, CountDownLatch finish, int taskNumber) {
+    public ParallelRequestThread(MessageSendJDKProxy sendProxy, CountDownLatch signal, CountDownLatch finish, int taskNumber) {
         this.sendProxy = sendProxy;
         this.signal = signal;
         this.finish = finish;
@@ -22,6 +22,7 @@ public class ParallelRequestThread implements Runnable{
     public void run() {
         try{
             signal.await();
+            // calculate为代理对象
             Calculate calculate = (Calculate) sendProxy.getProxy(Calculate.class);
             int add = calculate.add(taskNumber,taskNumber);
             System.out.println("calc add result:[" + add + "]");
