@@ -30,6 +30,7 @@ public class MessageRecvExecutor implements ApplicationContextAware, Initializin
     private final String DELIMITER = ":";
 
     private String serverAddress;
+    private String serverWeight;
     private ServiceRegistry serviceRegistry;
     //默认JKD本地序列化协议
     private RpcSerializeProtocol serializeProtocol = RpcSerializeProtocol.JDKSERIALIZE;
@@ -59,19 +60,11 @@ public class MessageRecvExecutor implements ApplicationContextAware, Initializin
         this.serviceRegistry = serviceRegistry;
         this.serializeProtocol = serializeProtocol;
     }
-
-    public String getServerAddress() {
-        return serverAddress;
-    }
-    public void setServerAddress(String serverAddress) {
+    public MessageRecvExecutor(String serverAddress, String serverWeight, ServiceRegistry serviceRegistry, RpcSerializeProtocol serializeProtocol) {
         this.serverAddress = serverAddress;
-    }
-
-    public ServiceRegistry getServiceRegistry() {
-        return serviceRegistry;
-    }
-    public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+        this.serverWeight = serverWeight;
         this.serviceRegistry = serviceRegistry;
+        this.serializeProtocol = serializeProtocol;
     }
 
     public static void submit(Runnable task){
@@ -121,16 +114,17 @@ public class MessageRecvExecutor implements ApplicationContextAware, Initializin
                     .option(ChannelOption.SO_BACKLOG,128) // 设置TCP属性
                     .childOption(ChannelOption.SO_KEEPALIVE,true); //配置accepted的channel属性
 
-            String[] ipAddr = serverAddress.split(DELIMITER);
+            String serverAddressAndWeight = serverAddress + ":" + serverWeight;
+            String[] ipAddr = serverAddressAndWeight.split(DELIMITER);
 
-            if(ipAddr.length==2){
+            if(ipAddr.length==3){
                 String host = ipAddr[0];
                 int port = Integer.parseInt(ipAddr[1]);
                 ChannelFuture future = bootstrap.bind(host,port).sync();
                 logger.info("[author Loring] Netty RPC Server start success in ip:{},port:{} ", host, port);
 
                 if (serviceRegistry != null) {
-                    serviceRegistry.register(serverAddress); // 注册服务地址
+                    serviceRegistry.register(serverAddressAndWeight); // 注册服务地址
                 }
 
                 future.channel().closeFuture().sync();

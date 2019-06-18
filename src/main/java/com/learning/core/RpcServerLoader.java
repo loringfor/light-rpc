@@ -51,7 +51,7 @@ public class RpcServerLoader {
 
     public void load(String serverAddress, RpcSerializeProtocol protocol){
         String[] ipAddr = serverAddress.split(":");
-        if(ipAddr.length==2){
+        if(ipAddr.length==3){
             String host = ipAddr[0];
             int port = Integer.parseInt(ipAddr[1]);
             InetSocketAddress remoteAddr = new InetSocketAddress(host,port);

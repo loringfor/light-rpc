@@ -1,5 +1,8 @@
 package com.learning.registry;
 
+import com.learning.cluster.LoadBalance;
+import com.learning.cluster.loadbalance.ConsistentHashLoadBalance;
+import com.learning.cluster.loadbalance.RandomLoadBalance;
 import com.learning.common.Constant;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -7,12 +10,10 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class ServiceDiscovery {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDiscovery.class);
@@ -29,21 +30,11 @@ public class ServiceDiscovery {
     }
 
     public String discover(){
-        String data = null;
-        int size = dataList.size();
-        if(size>0){
-            if(size==1){
-                data = dataList.get(0);
-                logger.info("using the only node:{}", data);
-
-            }else{
-                // 随机选取一个节点
-                data = dataList.get(ThreadLocalRandom.current().nextInt(size));
-                logger.info("using the random node:{}", data);
-            }
-        }
-        return data;
+        LoadBalance loadBalance = new RandomLoadBalance();
+        logger.info("loadBalance and select: {}",loadBalance.select(dataList));
+        return loadBalance.select(dataList);
     }
+
     public ZooKeeper connectServer(){
         ZooKeeper zooKeeper=null;
         try{
@@ -82,6 +73,4 @@ public class ServiceDiscovery {
             logger.error("erro:{}", e);
         }
     }
-
-
 }

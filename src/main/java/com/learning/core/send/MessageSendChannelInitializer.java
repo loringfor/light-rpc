@@ -11,7 +11,7 @@ public class MessageSendChannelInitializer extends ChannelInitializer {
     private RpcSerializeProtocol protocol;
     private RpcSendSerializeFrame frame = new RpcSendSerializeFrame();
 
-    MessageSendChannelInitializer buildRpcSerializeProtocol(RpcSerializeProtocol protocol){
+    public MessageSendChannelInitializer buildRpcSerializeProtocol(RpcSerializeProtocol protocol){
         this.protocol = protocol;
         return this;
     }

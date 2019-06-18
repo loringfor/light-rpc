@@ -15,8 +15,7 @@ public class MessageSendJDKProxy<T> implements InvocationHandler {
     private static final Logger logger = LoggerFactory.getLogger(MessageSendJDKProxy.class);
 
     public <T> T getProxy(Class<T> rpcInterface){
-        return (T) Proxy.newProxyInstance(
-                rpcInterface.getClassLoader(), new Class<?>[]{rpcInterface}, this);
+        return (T) Proxy.newProxyInstance(rpcInterface.getClassLoader(), new Class<?>[]{rpcInterface}, this);
     }
 
     @Override

@@ -30,6 +30,7 @@
 
     <bean id="rpcServer" class="com.learning.core.recv.MessageRecvExecutor">
         <constructor-arg name="serverAddress" value="${rpc.server.addr}"/>
+        <constructor-arg name="serverWeight" value="${rpc.server.weight}"/>
         <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>
         <constructor-arg name="serializeProtocol" value="PROTOSTUFFSERIALIZE"/>
     </bean>

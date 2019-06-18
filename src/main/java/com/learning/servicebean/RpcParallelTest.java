@@ -3,13 +3,24 @@ package com.learning.servicebean;
 import com.learning.core.RpcServerLoader;
 import com.learning.core.send.MessageSendCGlibProxy;
 import com.learning.core.send.MessageSendJDKProxy;
+import com.learning.registry.ServiceDiscovery;
 import com.learning.serialize.RpcSerializeProtocol;
 import org.apache.commons.lang.time.StopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.CountDownLatch;
 
 public class RpcParallelTest {
+    private static final Logger logger = LoggerFactory.getLogger(ServiceDiscovery.class);
     public static void main(String[] args) throws InterruptedException {
-        String serverAddress = "127.0.0.1:18888";
+        String serverAddress = null;
+        // 127.0.0.1:2181为ZooKeepeer地址
+        ServiceDiscovery serviceDiscovery = new ServiceDiscovery("192.168.1.127:2181");
+        if(serviceDiscovery != null){
+            serverAddress = serviceDiscovery.discover();
+        }
+        logger.info("servetAddress is {}",serverAddress);
         // 单例模式，只有一个loader对象
         RpcServerLoader loader = RpcServerLoader.getInstance();
         RpcSerializeProtocol protocol =RpcSerializeProtocol.PROTOSTUFFSERIALIZE;
