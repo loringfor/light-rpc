@@ -31,7 +31,7 @@ public class RpcParallelTest {
         MessageSendJDKProxy sendProxy = new MessageSendJDKProxy();
 //        MessageSendCGlibProxy sendProxy = new MessageSendCGlibProxy();
         //并行度
-        int parallel=50;
+        int parallel=500;
 
         //开始计时
         StopWatch stopWatch = new StopWatch();

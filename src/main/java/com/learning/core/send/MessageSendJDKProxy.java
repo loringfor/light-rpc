@@ -30,6 +30,7 @@ public class MessageSendJDKProxy<T> implements InvocationHandler {
         MessageSendHandler messageSendHandler = RpcServerLoader.getInstance().getMessageSendHandler();
         MessageCallBack callBack = messageSendHandler.sendRequest(request);
         logger.info("调用了："+ method.toString());
+        //返回回调的结果
         return callBack.start();
     }
 }

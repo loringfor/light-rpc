@@ -30,7 +30,9 @@ public class MessageSendHandler extends ChannelInboundHandlerAdapter {
         String messageId = messageResponse.getMessageId();
         MessageCallBack callBack = mapCallBack.get(messageId);
         if(callBack!=null){
+            //完成回调后从hashmap中删除
             mapCallBack.remove(messageId);
+            //设置运算结果
             callBack.over(messageResponse);
         }
     }
