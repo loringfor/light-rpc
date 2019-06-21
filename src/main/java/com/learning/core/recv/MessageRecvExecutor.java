@@ -2,7 +2,6 @@ package com.learning.core.recv;
 
 import com.learning.core.threadpool.NameThreadFactory;
 import com.learning.core.threadpool.RpcThreadPool;
-import com.learning.model.MessageKeyVal;
 import com.learning.registry.ServiceRegistry;
 import com.learning.serialize.RpcSerializeProtocol;
 import io.netty.bootstrap.ServerBootstrap;
@@ -13,22 +12,15 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import java.nio.channels.spi.SelectorProvider;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class MessageRecvExecutor implements ApplicationContextAware, InitializingBean {
+public class MessageRecvExecutor {
     private static final Logger logger = LoggerFactory.getLogger(MessageRecvExecutor.class);
-
     private final String DELIMITER = ":";
-
     private String serverAddress;
     private String serverWeight;
     private ServiceRegistry serviceRegistry;
@@ -78,23 +70,7 @@ public class MessageRecvExecutor implements ApplicationContextAware, Initializin
         threadPoolExecutor.submit(task);
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        try {
-            MessageKeyVal messageKeyVal = (MessageKeyVal) applicationContext.getBean(Class.forName("com.learning.model.MessageKeyVal"));
-            Map<String,Object> map = messageKeyVal.getMessageKeyVal();
-            Iterator iterator =map.entrySet().iterator();
-            while (iterator.hasNext()){
-                Map.Entry entry = (Map.Entry) iterator.next();
-                concurrentHashMap.put(entry.getKey().toString(), entry.getValue());
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    public void start() throws Exception {
         //netty的线程池模型设置成主从线程池模式，这样可以应对高并发请求
         //当然netty还支持单线程、多线程网络IO模型，可以根据业务需求灵活配置
         ThreadFactory threadRpcFactory = new NameThreadFactory();
@@ -136,4 +112,65 @@ public class MessageRecvExecutor implements ApplicationContextAware, Initializin
             worker.shutdownGracefully();
         }
     }
+
+    public String getServerAddress() {
+        return serverAddress;
+    }
+
+    public void setServerAddress(String serverAddress) {
+        this.serverAddress = serverAddress;
+    }
+
+    public String getServerWeight() {
+        return serverWeight;
+    }
+
+    public void setServerWeight(String serverWeight) {
+        this.serverWeight = serverWeight;
+    }
+
+    public ServiceRegistry getServiceRegistry() {
+        return serviceRegistry;
+    }
+
+    public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
+    }
+
+    public RpcSerializeProtocol getSerializeProtocol() {
+        return serializeProtocol;
+    }
+
+    public void setSerializeProtocol(RpcSerializeProtocol serializeProtocol) {
+        this.serializeProtocol = serializeProtocol;
+    }
+
+    public Map<String, Object> getConcurrentHashMap() {
+        return concurrentHashMap;
+    }
+
+    public void setConcurrentHashMap(Map<String, Object> concurrentHashMap) {
+        this.concurrentHashMap = concurrentHashMap;
+    }
+
+//    @Override
+//    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+//        try {
+//            MessageKeyVal messageKeyVal = (MessageKeyVal) applicationContext.getBean(Class.forName("com.learning.model.MessageKeyVal"));
+//            Map<String,Object> map = messageKeyVal.getMessageKeyVal();
+//            Iterator iterator =map.entrySet().iterator();
+//            while (iterator.hasNext()){
+//                Map.Entry entry = (Map.Entry) iterator.next();
+//                concurrentHashMap.put(entry.getKey().toString(), entry.getValue());
+//                logger.info("Service put in HashMap, >>>key:{},>>>value:{}",entry.getKey().toString(),entry.getValue());
+//            }
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+//    @Override
+//    public void afterPropertiesSet() throws Exception {
+//
+//    }
 }

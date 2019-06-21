@@ -31,8 +31,9 @@ public class ServiceDiscovery {
 
     public String discover(){
         LoadBalance loadBalance = new RandomLoadBalance();
-        logger.info("loadBalance and select: {}",loadBalance.select(dataList));
-        return loadBalance.select(dataList);
+        String select = loadBalance.select(dataList);
+        logger.info("loadBalance and select: {}",select);
+        return select;
     }
 
     public ZooKeeper connectServer(){

@@ -26,6 +26,7 @@ public class MessageRecvInitializeTask implements Runnable {
     public void run() {
         reponse.setMessageId(request.getMessageId());
         try{
+            // 反射调用实际服务
             Object result = reflect(request);
             reponse.setResultDesc(result);
         } catch (Throwable throwable) {
@@ -43,6 +44,7 @@ public class MessageRecvInitializeTask implements Runnable {
 
     public Object reflect(MessageRequest request) throws Throwable {
         String className = request.getClassName();
+        System.out.println("concurrentMap.get(className):"+concurrentMap.get(className));
         Object serviceBean = concurrentMap.get(className);
         String methodName = request.getMethodName();
         Object[] parameters = request.getParametersVal();

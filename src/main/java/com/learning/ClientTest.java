@@ -3,18 +3,16 @@ package com.learning;
 import com.learning.core.RpcServerLoader;
 import com.learning.core.send.MessageSendChannelInitializer;
 import com.learning.core.send.MessageSendHandler;
-import com.learning.core.send.MessageSendInitializeTask;
 import com.learning.core.send.MessageSendJDKProxy;
 import com.learning.registry.ServiceDiscovery;
 import com.learning.serialize.RpcSerializeProtocol;
-import com.learning.servicebean.Calculate;
+import com.learning.services.AddCalculate;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-
 import java.net.InetSocketAddress;
 
 /**
@@ -65,8 +63,8 @@ public class ClientTest {
         MessageSendJDKProxy sendProxy = new MessageSendJDKProxy();
         // MessageSendCGlibProxy sendProxy = new MessageSendCGlibProxy();
 
-        Calculate calculate = (Calculate) sendProxy.getProxy(Calculate.class);
-        int add = calculate.add(10,15);
+        AddCalculate addCalculate = (AddCalculate) sendProxy.getProxy(AddCalculate.class);
+        int add = addCalculate.add(10,15);
         System.out.println("calc add result:[" + add + "]");
 
 //        loader.unLoad();

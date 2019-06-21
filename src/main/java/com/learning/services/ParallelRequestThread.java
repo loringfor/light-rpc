@@ -1,6 +1,5 @@
-package com.learning.servicebean;
+package com.learning.services;
 
-import com.learning.core.send.MessageSendCGlibProxy;
 import com.learning.core.send.MessageSendJDKProxy;
 
 import java.util.concurrent.CountDownLatch;
@@ -23,9 +22,12 @@ public class ParallelRequestThread implements Runnable{
         try{
             signal.await();
             // calculate为代理对象
-            Calculate calculate = (Calculate) sendProxy.getProxy(Calculate.class);
-            int add = calculate.add(taskNumber,taskNumber);
+            AddCalculate addCalculate = (AddCalculate) sendProxy.getProxy(AddCalculate.class);
+            MultiCalculate multiCalculate = (MultiCalculate)sendProxy.getProxy(MultiCalculate.class);
+            int add = addCalculate.add(taskNumber,taskNumber);
+            int multi = multiCalculate.multi(taskNumber,taskNumber);
             System.out.println("calc add result:[" + add + "]");
+            System.out.println("calc multi result:[" + multi + "]");
             finish.countDown();
         }catch (InterruptedException ex){
             System.out.println("InterruptedException");

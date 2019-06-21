@@ -11,9 +11,7 @@ public class RandomLoadBalance extends AbstractLoadBalance{
 
     @Override
     public String doSelect(List<String> dataList) {
-        String data = null;
         int size = dataList.size();
-
         int totalWeight = 0;
         boolean sameWeight = true;
         int firstWeight = getWeight(dataList.get(0));
@@ -45,14 +43,14 @@ public class RandomLoadBalance extends AbstractLoadBalance{
                 offset -= getWeight(dataList.get(i));
                 if (offset < 0) {
                     logger.info("using the random node:{}", dataList.get(i));
-                    // 返回相应的 Invoker
+                    // 返回相应的ip
                     return dataList.get(i);
                 }
             }
         }
 
-        data = dataList.get(ThreadLocalRandom.current().nextInt(size));
-        logger.info("using the random node:{}", data);
-        return data;
+        String select = dataList.get(ThreadLocalRandom.current().nextInt(size));
+        logger.info("using the random node:{}", select);
+        return select;
     }
 }

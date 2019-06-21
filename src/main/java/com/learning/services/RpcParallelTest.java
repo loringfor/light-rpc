@@ -1,7 +1,6 @@
-package com.learning.servicebean;
+package com.learning.services;
 
 import com.learning.core.RpcServerLoader;
-import com.learning.core.send.MessageSendCGlibProxy;
 import com.learning.core.send.MessageSendJDKProxy;
 import com.learning.registry.ServiceDiscovery;
 import com.learning.serialize.RpcSerializeProtocol;
@@ -20,7 +19,7 @@ public class RpcParallelTest {
         if(serviceDiscovery != null){
             serverAddress = serviceDiscovery.discover();
         }
-        logger.info("servetAddress is {}",serverAddress);
+        logger.info("serverAddress is {}",serverAddress);
         // 单例模式，只有一个loader对象
         RpcServerLoader loader = RpcServerLoader.getInstance();
         RpcSerializeProtocol protocol =RpcSerializeProtocol.PROTOSTUFFSERIALIZE;
@@ -31,7 +30,7 @@ public class RpcParallelTest {
         MessageSendJDKProxy sendProxy = new MessageSendJDKProxy();
 //        MessageSendCGlibProxy sendProxy = new MessageSendCGlibProxy();
         //并行度
-        int parallel=50;
+        int parallel=10;
 
         //开始计时
         StopWatch stopWatch = new StopWatch();
