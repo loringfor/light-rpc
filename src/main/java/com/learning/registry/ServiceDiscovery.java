@@ -35,6 +35,10 @@ public class ServiceDiscovery {
         return loadBalance.select(dataList);
     }
 
+    public List<String> discoverAll(){
+        return this.dataList;
+    }
+
     public ZooKeeper connectServer(){
         ZooKeeper zooKeeper=null;
         try{

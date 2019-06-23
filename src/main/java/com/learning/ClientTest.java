@@ -14,8 +14,11 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.springframework.util.CollectionUtils;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Loring
@@ -23,31 +26,33 @@ import java.net.InetSocketAddress;
  */
 public class ClientTest {
     public static void main(String[] args) throws InterruptedException {
-            String serverAddress = null;
-            // 127.0.0.1:2181为ZooKeepeer地址
+        String serverAddress = null;
+        // 127.0.0.1:2181为ZooKeepeer地址
+        int parallel = Runtime.getRuntime().availableProcessors() * 2;
+        //重试次数
+        final int retryTimes = 5;
+        List<String> invokers = new ArrayList<>();
+        ServiceDiscovery serviceDiscovery = new ServiceDiscovery("192.168.1.127:2181");
+        if (serviceDiscovery != null) {
+            invokers = serviceDiscovery.discoverAll();
+            check(invokers);
+        }
+        List<String> invoked = new ArrayList<>(invokers.size());
+        RpcServerLoader loader = null;
 
-            long startTime = System.currentTimeMillis();
-            long currentTime = System.currentTimeMillis();
-            //在5秒内找到一个可用的服务器地址
-            while(serverAddress == null && currentTime - startTime <= 5000) {
-                ServiceDiscovery serviceDiscovery = new ServiceDiscovery("192.168.1.127:2181");
-                if (serviceDiscovery != null) {
-                    serverAddress = serviceDiscovery.discover();
-                }
-            }
-            if (serverAddress == null){
-                System.out.println("没有可用的服务器");
-                return;
-            }
+        for(int i = 0; i < retryTimes; i++) {
+            invokers = serviceDiscovery.discoverAll();
+            check(invokers);
+            serverAddress = serviceDiscovery.discover();
+            invoked.add(serverAddress);
 
             // 单例模式，只有一个loader对象
-            RpcServerLoader loader = RpcServerLoader.getInstance();
+            loader = RpcServerLoader.getInstance();
             RpcSerializeProtocol protocol = RpcSerializeProtocol.PROTOSTUFFSERIALIZE;
 
             // 建立发送的线程并提交到线程池
 //        loader.load(serverAddress,protocol);
 
-            int parallel = Runtime.getRuntime().availableProcessors() * 2;
             EventLoopGroup eventLoopGroup = new NioEventLoopGroup(parallel);
             String[] ipAddr = serverAddress.split(":");
             if (ipAddr.length == 3) {
@@ -61,14 +66,14 @@ public class ClientTest {
                         .handler(new MessageSendChannelInitializer().buildRpcSerializeProtocol(protocol));
                 //连接到远程地址
                 ChannelFuture channelFuture = bootstrap.connect(remoteAddr);
+                RpcServerLoader finalLoader = loader;
                 channelFuture.addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture channelFuture) throws Exception {
                         if (channelFuture.isSuccess()) {
                             MessageSendHandler handler = channelFuture.channel().pipeline().get(MessageSendHandler.class);
-                            loader.setMessageSendHandler(handler);
-                        }
-                        else{
+                            finalLoader.setMessageSendHandler(handler);
+                        } else {
                             System.err.println("建立远程连接错误");
                             channelFuture.cause().printStackTrace();
                         }
@@ -82,9 +87,21 @@ public class ClientTest {
 
             Calculate calculate = (Calculate) sendProxy.getProxy(Calculate.class);
             int add = calculate.add(10, 15);
-            System.out.println("calc add result:[" + add + "]");
-
-//        loader.unLoad();
+            if (add == -11111){
+                System.out.printf("第%d次远程调用失败\n", (i+1));
+            }
+            else {
+                System.out.println("calc add result:[" + add + "]");
+                break;
+            }
+        }
+        loader.unLoad();
 
     }
+    public static void check(List<String> invokers) throws InterruptedException {
+        if (CollectionUtils.isEmpty(invokers)) {
+            throw new InterruptedException();
+        }
+    }
 }
+
