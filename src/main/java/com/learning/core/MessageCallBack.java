@@ -22,11 +22,11 @@ public class MessageCallBack {
         try {
             lock.lock();
             //设定一下超时时间，rpc服务器太久没有相应的话，就默认返回空吧。
-            finish.await(10, TimeUnit.SECONDS);
+            finish.await(10000, TimeUnit.MILLISECONDS);
             if(response!=null){
                 return response.getResultDesc();
             }else{
-                return null;
+                return -11111;
             }
         }finally {
             lock.unlock();

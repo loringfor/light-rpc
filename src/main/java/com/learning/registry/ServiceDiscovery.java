@@ -36,6 +36,10 @@ public class ServiceDiscovery {
         return select;
     }
 
+    public List<String> discoverAll(){
+        return dataList;
+    }
+
     public ZooKeeper connectServer(){
         ZooKeeper zooKeeper=null;
         try{
